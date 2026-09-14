@@ -586,8 +586,8 @@
                 <label for="employmentStatus">劳动关系状态</label>
                 <div class="select-wrap">
                   <select id="employmentStatus">
-                    <option value="employed">在职 / 保留劳动关系</option>
-                    <option value="terminated" selected>解除或终止劳动关系</option>
+                    <option value="employed" selected>在职 / 保留劳动关系</option>
+                    <option value="terminated">解除或终止劳动关系</option>
                   </select>
                 </div>
               </div>
@@ -603,7 +603,7 @@
               </div>
               <small>上海人社公开答复及《实施办法》列示为 12 个月；15 个月仅用于复现第二张图片中的差异。</small>
             </div>
-            <div class="toggle-line" style="margin-top: 13px;">
+            <div class="toggle-line" id="earlyRetirementField" hidden style="margin-top: 13px;">
               <input id="earlyRetirement" type="checkbox">
               <label for="earlyRetirement">本人提出解除，且距法定退休年龄不足 5 年
                 <small>不属于《劳动合同法》第三十八条规定情形时，医疗补助金和就业补助金按不足年限每减少 1 年递减 20%。</small>
@@ -939,6 +939,9 @@
       function updateVisibility() {
         $$("[data-disability-only]").forEach(function (node) { node.hidden = mode !== "disability"; });
         $$("[data-death-only]").forEach(function (node) { node.hidden = mode !== "death"; });
+        var showEarlyRetirement = mode === "disability" && $("#employmentStatus").value === "terminated";
+        $("#earlyRetirementField").hidden = !showEarlyRetirement;
+        if (!showEarlyRetirement) $("#earlyRetirement").checked = false;
         $("#retirementYearsField").style.display = ($("#earlyRetirement").checked && mode === "disability" && $("#employmentStatus").value === "terminated") ? "block" : "none";
         $("#grade7VariantField").style.display = (mode === "disability" && integerValue("grade") === 7 && $("#employmentStatus").value === "terminated") ? "block" : "none";
         $("#baseWageLabel").textContent = mode === "death" ? "因工死亡职工本人工资" : "本人月平均缴费工资";
@@ -1130,7 +1133,7 @@
         put("baseWage", input.baseWage);
         put("socialAverage", LATEST_SOCIAL_AVERAGE);
         put("grade", input.grade === undefined ? 10 : input.grade);
-        put("employmentStatus", input.employmentStatus === undefined ? "terminated" : input.employmentStatus);
+        put("employmentStatus", input.employmentStatus === undefined ? "employed" : input.employmentStatus);
         put("earlyRetirement", input.earlyRetirement === undefined ? false : input.earlyRetirement);
         put("retirementYears", input.retirementYears === undefined ? 4 : input.retirementYears);
         put("grade7EmploymentMonths", input.grade7EmploymentMonths === undefined ? 12 : input.grade7EmploymentMonths);
@@ -1207,7 +1210,7 @@
         $("#baseWage").value = "15000";
         $("#socialAverage").value = String(LATEST_SOCIAL_AVERAGE);
         $("#grade").value = "10";
-        $("#employmentStatus").value = "terminated";
+        $("#employmentStatus").value = "employed";
         $("#earlyRetirement").checked = false;
         $("#retirementYears").value = "4";
         $("#grade7EmploymentMonths").value = "12";
